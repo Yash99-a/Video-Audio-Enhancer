@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Audio Enhancer App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-6">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Video Audio Enhancer</h1>
+            <p class="mt-2 text-gray-600">Upload a video to process its audio</p>
+        </div>
+
+        <form id="uploadForm" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Select Video</label>
+                <input type="file" name="video" accept=".mp4,.avi,.mov,.mkv" 
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Select Language</label>
+                <select name="language" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                    <option value="mr">Marathi</option>
+                    <option value="te">Telugu</option>
+                    <option value="de">German</option>
+                    <option value="ja">Japanese</option>
+                </select>
+            </div>
+
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Process Video
+            </button>
+        </form>
+
+        <div id="progress" class="hidden mt-6">
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+            <p class="text-center mt-2 text-sm text-gray-600">Processing...</p>
+        </div>
+
+        <div id="downloadSection" class="hidden mt-6 text-center">
+            <a id="downloadLink" href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Download Processed Video
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // Show progress
+            document.getElementById('progress').classList.remove('hidden');
+            document.getElementById('downloadSection').classList.add('hidden');
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Hide progress and show download button
+                    document.getElementById('progress').classList.add('hidden');
+                    document.getElementById('downloadSection').classList.remove('hidden');
+                    document.getElementById('downloadLink').href = `/download/${data.video_id}`;
+                } else {
+                    alert(data.error || 'An error occurred');
+                }
+            } catch (error) {
+                alert('An error occurred while processing the video');
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
